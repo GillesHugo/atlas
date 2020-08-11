@@ -1,30 +1,29 @@
 <?php
-
-use App\Kernel;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\ErrorHandler\Debug;
-use Symfony\Component\HttpFoundation\Request;
-
-require dirname(__DIR__).'/vendor/autoload.php';
-
-(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
-
-if ($_SERVER['APP_DEBUG']) {
-    umask(0000);
-
-    Debug::enable();
+session_start();
+include_once('inc/header.php');
+if(isset($_SESSION['user']) && !empty($_SESSION['user'])){
+    // Ici, l'utilisateur est connecté
+    ?>
+    <p>Bonjour <?= $_SESSION['user']['pseudo'] ?> <a class="btn btn-danger" href="deconnexion.php">Déconnexion</a></p>
+<?php
+}else{
+    // Ici l'utilisateur n'est pas connecté
+    ?>
+    <a class="btn btn-primary mr-2" href="connexion.php">Connexion</a> <a class="btn btn-primary" href="inscription.php">Inscription</a>
+<?php
 }
-
-if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? false) {
-    Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST);
-}
-
-if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
-    Request::setTrustedHosts([$trustedHosts]);
-}
-
-$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-$request = Request::createFromGlobals();
-$response = $kernel->handle($request);
-$response->send();
-$kernel->terminate($request, $response);
+?>
+<div class="col-12 my-1">
+    <div class="p-2" id="discussion">
+    </div>
+</div>
+<div class="col-12 saisie">
+    <div class="input-group">
+        <input type="text" class="form-control" id="texte" placeholder="Entrez votre texte">
+        <div class="input-group-append">
+            <span class="input-group-text" id="valid"><i class="la la-check"></i></span>
+        </div>
+    </div>
+</div>
+<?php
+include_once('inc/footer.php');
